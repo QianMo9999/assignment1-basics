@@ -11,6 +11,7 @@ from torch import Tensor
 
 from cs336_basics.tokenizer import BPETokenizer
 from cs336_basics.train_bpe import train_bpe
+from cs336_basics.get_batch import get_batch
 
 
 def run_linear(
@@ -418,6 +419,8 @@ def run_get_batch(
         is the sampled input sequences, and the second tuple item is the corresponding
         language modeling labels.
     """
+    return get_batch(dataset, batch_size, context_length, device)
+
     raise NotImplementedError
 
 

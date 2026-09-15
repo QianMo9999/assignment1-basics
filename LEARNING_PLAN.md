@@ -17,7 +17,7 @@
 | --- | --- | --- | --- |
 | 1 | 项目机制 | Done | `uv run pytest -q` |
 | 2 | Tokenizer / BPE | Done | `uv run pytest tests/test_tokenizer.py -q`; `uv run pytest tests/test_train_bpe.py -q` |
-| 3 | Data batching | Not started | `uv run pytest tests/test_data.py -q` |
+| 3 | Data batching | Done | `uv run pytest tests/test_data.py -q` |
 | 4 | 基础 NN 组件 | Not started | `uv run pytest tests/test_model.py -q`; `uv run pytest tests/test_nn_utils.py -q` |
 | 5 | Attention / RoPE | Not started | `uv run pytest tests/test_model.py::test_scaled_dot_product_attention -q`; `uv run pytest tests/test_model.py::test_rope -q` |
 | 6 | Transformer block / Transformer LM | Not started | `uv run pytest tests/test_model.py::test_transformer_block -q`; `uv run pytest tests/test_model.py::test_transformer_lm -q` |
@@ -240,7 +240,7 @@ tests/adapters.py
 
 ## Module 2: Tokenizer / BPE
 
-状态：In progress
+状态：Done
 
 目标：理解文本如何转成 token id，以及如何从语料训练 byte-level BPE tokenizer。
 
@@ -1537,7 +1537,7 @@ merges: list[tuple[bytes, bytes]]
 
 ## Module 3: Data Batching
 
-状态：Not started
+状态：In progress
 
 目标：把一维 token id 数据切成语言模型训练用的输入和标签。
 
@@ -1553,11 +1553,38 @@ merges: list[tuple[bytes, bytes]]
 
 - `tests/test_data.py`
 
+当前接口：
+
+```text
+dataset: npt.NDArray
+batch_size: int
+context_length: int
+device: str
+```
+
+接口理解：
+
+- `dataset` 是一维 NumPy token id 数组，不是原始字符串；长度记为 `N`。
+- `batch_size` 是一次抽取多少条训练样本，对应输出的第 0 维。
+- `context_length` 是每条样本包含多少个输入 token，对应输出的第 1 维。
+- `device` 指定返回 PyTorch tensor 放在哪个设备，例如 `cpu`、`cuda` 或 `mps`。
+- 输出应是 `x`、`y` 两个 shape 为 `(batch_size, context_length)` 的整数 tensor。
+- 每行 `y` 都是对应 `x` 向右移动一位，抽样起点必须保证 `y` 不越界。
+
 本模块检查点：
 
-- [ ] 能画出 token 序列到 `(x, y)` 的对应关系。
-- [ ] 能解释 batch 中每行样本如何采样。
-- [ ] 相关测试通过。
+- [x] 能画出 token 序列到 `(x, y)` 的对应关系。
+- [x] 能解释 batch 中每行样本如何采样。
+- [x] 相关测试通过。
+
+进度记录：
+
+- `uv run pytest tests/test_data.py -q` 已通过。
+- 已理解 `context_length` 是每条训练样本的输入 token 数。
+- 已理解合法随机起点范围是 `[0, len(dataset) - context_length)`。
+- 已理解 `x = dataset[start:start+C]`，`y = dataset[start+1:start+C+1]`。
+- 已理解 NumPy array 可以通过 `np.stack` 后转成 torch tensor。
+- 已解决 `devide` 拼写错误；正确关键字是 `device`。
 
 ## Module 4: 基础 NN 组件
 
