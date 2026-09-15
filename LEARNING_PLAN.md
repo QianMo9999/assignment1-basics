@@ -18,7 +18,7 @@
 | 1 | 项目机制 | Done | `uv run pytest -q` |
 | 2 | Tokenizer / BPE | Done | `uv run pytest tests/test_tokenizer.py -q`; `uv run pytest tests/test_train_bpe.py -q` |
 | 3 | Data batching | Done | `uv run pytest tests/test_data.py -q` |
-| 4 | 基础 NN 组件 | Not started | `uv run pytest tests/test_model.py -q`; `uv run pytest tests/test_nn_utils.py -q` |
+| 4 | 基础 NN 组件 | In progress | `uv run pytest tests/test_model.py -q`; `uv run pytest tests/test_nn_utils.py -q` |
 | 5 | Attention / RoPE | Not started | `uv run pytest tests/test_model.py::test_scaled_dot_product_attention -q`; `uv run pytest tests/test_model.py::test_rope -q` |
 | 6 | Transformer block / Transformer LM | Not started | `uv run pytest tests/test_model.py::test_transformer_block -q`; `uv run pytest tests/test_model.py::test_transformer_lm -q` |
 | 7 | Optimizer / scheduler / checkpoint | Not started | `uv run pytest tests/test_optimizer.py -q`; `uv run pytest tests/test_serialization.py -q` |
@@ -1588,7 +1588,7 @@ device: str
 
 ## Module 4: 基础 NN 组件
 
-状态：Not started
+状态：In progress
 
 目标：实现 Transformer 会用到的基础张量操作和神经网络组件。
 
@@ -1601,6 +1601,28 @@ device: str
 - Cross entropy
 - RMSNorm
 - SwiGLU
+
+学习顺序：
+
+1. Linear：理解矩阵乘法和权重 shape。
+2. Embedding：理解 token id 查表。
+3. SiLU：理解逐元素激活函数。
+4. Softmax：理解概率归一化和数值稳定。
+5. Cross entropy：理解从 logits 到平均 loss。
+6. RMSNorm：理解按 hidden dimension 做归一化。
+7. SwiGLU：理解 Transformer FFN 中的门控结构。
+
+当前进度：
+
+- 开始 Module 4。
+- 第一小节先讲 Linear 和 Embedding，因为它们是 Transformer 输入和每层投影的基础。
+- `uv run pytest tests/test_model.py::test_linear -q` 已通过。
+- `uv run pytest tests/test_model.py::test_embedding -q` 已通过。
+- `uv run pytest tests/test_model.py::test_silu_matches_pytorch -q` 已通过。
+- `uv run pytest tests/test_nn_utils.py::test_softmax_matches_pytorch -q` 已通过。
+- `uv run pytest tests/test_nn_utils.py -k cross_entropy -q` 已通过。
+- `uv run pytest tests/test_model.py -k rmsnorm -q` 已通过。
+- `uv run pytest tests/test_model.py -k swiglu -q` 已通过。
 
 需要理解的问题：
 

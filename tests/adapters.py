@@ -12,6 +12,7 @@ from torch import Tensor
 from cs336_basics.tokenizer import BPETokenizer
 from cs336_basics.train_bpe import train_bpe
 from cs336_basics.get_batch import get_batch
+from cs336_basics.model import linear, embedding, silu, softmax, cross_entropy, rmsnorm, swiglu
 
 
 def run_linear(
@@ -32,6 +33,7 @@ def run_linear(
     Returns:
         Float[Tensor, "... d_out"]: The transformed output of your linear module.
     """
+    return linear(d_in, d_out, weights, in_features)
 
     raise NotImplementedError
 
@@ -54,6 +56,7 @@ def run_embedding(
     Returns:
         Float[Tensor, "... d_model"]: Batch of embeddings returned by your Embedding layer.
     """
+    return embedding(vocab_size, d_model, weights, token_ids)
 
     raise NotImplementedError
 
@@ -87,6 +90,7 @@ def run_swiglu(
     # swiglu.w1.weight.data = w1_weight
     # swiglu.w2.weight.data = w2_weight
     # swiglu.w3.weight.data = w3_weight
+    return swiglu(d_model, d_ff, w1_weight, w2_weight, w3_weight, in_features)
     raise NotImplementedError
 
 
@@ -382,6 +386,7 @@ def run_rmsnorm(
         Float[Tensor,"... d_model"]: Tensor of with the same shape as `in_features` with the output of running
         RMSNorm of the `in_features`.
     """
+    return rmsnorm(d_model, eps, weights, in_features)
     raise NotImplementedError
 
 
@@ -396,6 +401,7 @@ def run_silu(in_features: Float[Tensor, " ..."]) -> Float[Tensor, " ..."]:
         Float[Tensor,"..."]: of with the same shape as `in_features` with the output of applying
         SiLU to each element.
     """
+    return silu(in_features)
     raise NotImplementedError
 
 
@@ -437,6 +443,7 @@ def run_softmax(in_features: Float[Tensor, " ..."], dim: int) -> Float[Tensor, "
         Float[Tensor, "..."]: Tensor of with the same shape as `in_features` with the output of
         softmax normalizing the specified `dim`.
     """
+    return softmax(in_features, dim)
     raise NotImplementedError
 
 
@@ -455,6 +462,7 @@ def run_cross_entropy(
     Returns:
         Float[Tensor, ""]: The average cross-entropy loss across examples.
     """
+    return cross_entropy(inputs, targets)
     raise NotImplementedError
 
 
