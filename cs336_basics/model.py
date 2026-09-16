@@ -1,6 +1,7 @@
 import torch
 from jaxtyping import Bool, Float, Int
 from torch import Tensor
+import math
 
 def linear(
         d_in: int, 
@@ -61,3 +62,14 @@ def swiglu(
     in_features: Float[Tensor, " ... d_model"],
 ) -> Float[Tensor, " ... d_model"]:
     return silu(in_features @ w1_weight.T) * (in_features @ w3_weight.T) @ w2_weight.T
+
+def scaled_dot_product_attention(
+    Q: Float[Tensor, " ... queries d_k"],
+    K: Float[Tensor, " ... keys d_k"],
+    V: Float[Tensor, " ... keys d_v"],
+    mask: Bool[Tensor, " ... querys keys"] | None = None,
+) -> Float[Tensor, " ... querys d_v"]:
+    scores = Q @ K.transpose(-2, -1) / math.sqrt(Q.shape[-1])
+    if mask is not None:
+        scores = scores.masked_fill(mask == False, float("-inf"))
+    return softmax(scores, dim=-1) @ V

@@ -12,7 +12,7 @@ from torch import Tensor
 from cs336_basics.tokenizer import BPETokenizer
 from cs336_basics.train_bpe import train_bpe
 from cs336_basics.get_batch import get_batch
-from cs336_basics.model import linear, embedding, silu, softmax, cross_entropy, rmsnorm, swiglu
+from cs336_basics.model import linear, embedding, silu, softmax, cross_entropy, rmsnorm, swiglu, scaled_dot_product_attention
 
 
 def run_linear(
@@ -112,6 +112,7 @@ def run_scaled_dot_product_attention(
     Returns:
         Float[Tensor, " ... queries d_v"]: Output of SDPA
     """
+    return scaled_dot_product_attention(Q, K, V, mask)
     raise NotImplementedError
 
 

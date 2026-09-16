@@ -18,8 +18,8 @@
 | 1 | 项目机制 | Done | `uv run pytest -q` |
 | 2 | Tokenizer / BPE | Done | `uv run pytest tests/test_tokenizer.py -q`; `uv run pytest tests/test_train_bpe.py -q` |
 | 3 | Data batching | Done | `uv run pytest tests/test_data.py -q` |
-| 4 | 基础 NN 组件 | In progress | `uv run pytest tests/test_model.py -q`; `uv run pytest tests/test_nn_utils.py -q` |
-| 5 | Attention / RoPE | Not started | `uv run pytest tests/test_model.py::test_scaled_dot_product_attention -q`; `uv run pytest tests/test_model.py::test_rope -q` |
+| 4 | 基础 NN 组件 | Done | `uv run pytest tests/test_model.py -q`; `uv run pytest tests/test_nn_utils.py -q` |
+| 5 | Attention / RoPE | In progress | `uv run pytest tests/test_model.py::test_scaled_dot_product_attention -q`; `uv run pytest tests/test_model.py::test_rope -q` |
 | 6 | Transformer block / Transformer LM | Not started | `uv run pytest tests/test_model.py::test_transformer_block -q`; `uv run pytest tests/test_model.py::test_transformer_lm -q` |
 | 7 | Optimizer / scheduler / checkpoint | Not started | `uv run pytest tests/test_optimizer.py -q`; `uv run pytest tests/test_serialization.py -q` |
 | 8 | 整体验证和提交 | Not started | `uv run pytest -q`; `./make_submission.sh` |
@@ -1537,7 +1537,7 @@ merges: list[tuple[bytes, bytes]]
 
 ## Module 3: Data Batching
 
-状态：In progress
+状态：Done
 
 目标：把一维 token id 数据切成语言模型训练用的输入和标签。
 
@@ -1588,7 +1588,7 @@ device: str
 
 ## Module 4: 基础 NN 组件
 
-状态：In progress
+状态：Done
 
 目标：实现 Transformer 会用到的基础张量操作和神经网络组件。
 
@@ -1640,13 +1640,13 @@ device: str
 
 本模块检查点：
 
-- [ ] 每个组件都能写出输入 shape 和输出 shape。
-- [ ] 能从 snapshot 测试理解误差容忍度。
-- [ ] 相关测试通过。
+- [x] 每个组件都能写出输入 shape 和输出 shape。
+- [x] 能从 snapshot 测试理解误差容忍度。
+- [x] 相关测试通过。
 
 ## Module 5: Attention / RoPE
 
-状态：Not started
+状态：In progress
 
 目标：理解 Transformer 的核心计算：attention 和位置编码。
 
@@ -1674,6 +1674,13 @@ device: str
 - `tests/test_model.py::test_multihead_self_attention`
 - `tests/test_model.py::test_rope`
 - `tests/test_model.py::test_multihead_self_attention_with_rope`
+
+当前进度：
+
+- 运行基础测试集合后，剩余失败为 Attention/RoPE、Transformer 组合和 `gradient_clipping` 的 `NotImplementedError`。
+- 先从 scaled dot-product attention 开始，因为 MHA 和 RoPE attention 都依赖它。
+- `uv run pytest tests/test_model.py::test_scaled_dot_product_attention -q` 已通过。
+- `uv run pytest tests/test_model.py::test_4d_scaled_dot_product_attention -q` 已通过。
 
 本模块检查点：
 
