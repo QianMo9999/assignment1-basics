@@ -12,7 +12,7 @@ from torch import Tensor
 from cs336_basics.tokenizer import BPETokenizer
 from cs336_basics.train_bpe import train_bpe
 from cs336_basics.get_batch import get_batch
-from cs336_basics.model import linear, embedding, silu, softmax, cross_entropy, rmsnorm, swiglu, scaled_dot_product_attention
+from cs336_basics.model import linear, embedding, silu, softmax, cross_entropy, rmsnorm, swiglu, scaled_dot_product_attention, multihead_self_attention
 
 
 def run_linear(
@@ -147,6 +147,7 @@ def run_multihead_self_attention(
         Float[Tensor, " ... sequence_length d_model"]: Tensor with the output of running your optimized, batched multi-headed attention
         implementation with the given QKV projection weights and input features.
     """
+    return multihead_self_attention(d_model, num_heads, q_proj_weight, k_proj_weight, v_proj_weight, o_proj_weight, in_features)
     raise NotImplementedError
 
 

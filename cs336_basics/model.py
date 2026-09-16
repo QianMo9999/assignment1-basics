@@ -73,3 +73,34 @@ def scaled_dot_product_attention(
     if mask is not None:
         scores = scores.masked_fill(mask == False, float("-inf"))
     return softmax(scores, dim=-1) @ V
+
+def multihead_self_attention(
+        d_model: int,
+        num_heads: int,
+        q_proj_weight: Float[Tensor, " d_model d_model"],
+        k_proj_weight: Float[Tensor, " d_model d_model"],
+        v_proj_weight: Float[Tensor, " d_model d_model"],
+        o_proj_weight: Float[Tensor, " d_model d_model"],
+        in_features: Float[Tensor, " ... sequence_length d_model"],
+) -> Float[Tensor, " ... sequence_length d_model"]:
+    Q = in_features @ q_proj_weight.T
+    K = in_features @ k_proj_weight.T
+    V = in_features @ v_proj_weight.T
+    d_head = d_model // num_heads
+    q_prefix = Q.shape[:-1]
+    q_new_shape = q_prefix + (num_heads, d_head)
+    Q = Q.reshape(q_new_shape)
+    k_prefix = K.shape[:-1]
+    k_new_shape = k_prefix + (num_heads, d_head)
+    K = K.reshape(k_new_shape)
+    v_prefix = V.shape[:-1]
+    v_new_shape = v_prefix + (num_heads, d_head)
+    V = V.reshape(v_new_shape)
+    Q = Q.transpose(-2, -3) # ... num_heads sequence_length d_head
+    K = K.transpose(-2, -3) # ... num_heads sequence_length d_head
+    V = V.transpose(-2, -3) # ... num_heads sequence_length d_head
+    mask = torch.tril(torch.ones((Q.shape[-2], Q.shape[-2]), dtype=torch.bool))
+    attention_output = scaled_dot_product_attention(Q, K, V, mask) # ... num_heads sequence_length d_head
+    attention_output = attention_output.transpose(-2, -3).reshape(attention_output.transpose(-2, -3).shape[:-2] + (d_model,)) # ... sequence_length d_model
+
+    return attention_output @ o_proj_weight.T

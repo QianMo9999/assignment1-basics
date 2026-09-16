@@ -1681,6 +1681,7 @@ device: str
 - 先从 scaled dot-product attention 开始，因为 MHA 和 RoPE attention 都依赖它。
 - `uv run pytest tests/test_model.py::test_scaled_dot_product_attention -q` 已通过。
 - `uv run pytest tests/test_model.py::test_4d_scaled_dot_product_attention -q` 已通过。
+- `uv run pytest tests/test_model.py::test_multihead_self_attention -q` 已通过。
 
 本模块检查点：
 
