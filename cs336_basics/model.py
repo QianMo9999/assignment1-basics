@@ -104,3 +104,25 @@ def multihead_self_attention(
     attention_output = attention_output.transpose(-2, -3).reshape(attention_output.transpose(-2, -3).shape[:-2] + (d_model,)) # ... sequence_length d_model
 
     return attention_output @ o_proj_weight.T
+
+def rope(
+    d_k: int,
+    theta: float,
+    max_seq_len: int,
+    in_query_or_key: Float[Tensor, " ... sequence_length d_k"],
+    token_positions: Int[Tensor, " ... sequence_length"],
+) -> Float[Tensor, " ... sequence_length d_k"]:
+    indices = torch.arange(0, d_k, 2)
+    freq = 1.0 / (theta ** (indices / d_k))
+    pos = token_positions.unsqueeze(-1)
+    angles = pos * freq
+    cos_angles = torch.cos(angles)
+    sin_angles = torch.sin(angles)
+    x_even = in_query_or_key[..., 0::2]
+    x_odd = in_query_or_key[..., 1::2]
+    x_even_rotated = x_even * cos_angles - x_odd * sin_angles 
+    x_odd_rotated = x_even * sin_angles + x_odd * cos_angles
+    x_rotated = torch.empty_like(in_query_or_key)
+    x_rotated[..., 0::2] = x_even_rotated
+    x_rotated[..., 1::2] = x_odd_rotated
+    return x_rotated

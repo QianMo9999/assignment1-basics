@@ -12,7 +12,9 @@ from torch import Tensor
 from cs336_basics.tokenizer import BPETokenizer
 from cs336_basics.train_bpe import train_bpe
 from cs336_basics.get_batch import get_batch
-from cs336_basics.model import linear, embedding, silu, softmax, cross_entropy, rmsnorm, swiglu, scaled_dot_product_attention, multihead_self_attention
+from cs336_basics.model import linear, embedding, silu, softmax, cross_entropy, rmsnorm
+from cs336_basics.model import swiglu, scaled_dot_product_attention, multihead_self_attention
+from cs336_basics.model import rope
 
 
 def run_linear(
@@ -210,6 +212,7 @@ def run_rope(
     Returns:
         Float[Tensor, " ... sequence_length d_k"]: Tensor with RoPEd input.
     """
+    return rope(d_k, theta, max_seq_len, in_query_or_key, token_positions)
     raise NotImplementedError
 
 
