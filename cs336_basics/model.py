@@ -158,3 +158,44 @@ def multihead_self_attention_with_rope(
     attention_output =  attention_output.transpose(-2, -3).reshape(prefix_shape + (d_model,))
 
     return attention_output @ o_proj_weight.T
+
+def transformer_block(
+    d_model: int,
+    num_heads: int,
+    d_ff: int,
+    max_seq_len: int,
+    theta: float,
+    weights: dict[str, Tensor],
+    in_features: Float[Tensor, " batch sequence_length d_model"],
+) -> Float[Tensor, " batch sequence_length d_model"]:
+    rmsnorm_output = rmsnorm(d_model, 1e-5, weights["ln1.weight"], in_features)
+    token_positions = torch.arange(in_features.shape[1], device=in_features.device)
+    attention_output = multihead_self_attention_with_rope(d_model, num_heads, max_seq_len, theta, weights["attn.q_proj.weight"], weights["attn.k_proj.weight"], weights["attn.v_proj.weight"], weights["attn.output_proj.weight"], rmsnorm_output, token_positions)
+    attention_output = in_features + attention_output
+    rmsnorm_output = rmsnorm(d_model, 1e-5, weights["ln2.weight"], attention_output)
+    swiglu_output = swiglu(d_model, d_ff, weights["ffn.w1.weight"], weights["ffn.w2.weight"], weights["ffn.w3.weight"], rmsnorm_output)
+    return attention_output + swiglu_output
+
+def transformer_lm(
+    vocab_size: int,
+    context_length: int,
+    d_model: int,
+    num_layers: int,
+    num_heads: int,
+    d_ff: int,
+    rope_theta: float,
+    weights: dict[str, Tensor],
+    in_indices: Int[Tensor, " batch_size sequence_length"],
+) -> Float[Tensor, " batch_size sequence_length vocab_size"]:
+    x = embedding(vocab_size, d_model, weights["token_embeddings.weight"], in_indices) # batch_size sequence_length d_model
+    for layer in range(num_layers):
+        block_weights = {}
+        prefix = f"layers.{layer}."
+        for key, value in weights.items():
+            if key.startswith(prefix):
+                key = key[len(prefix):]
+                block_weights[key] = value
+        x = transformer_block(d_model, num_heads, d_ff, context_length, rope_theta, block_weights, x) # batch_size sequence_length d_model
+    x = rmsnorm(d_model, 1e-5, weights["ln_final.weight"], x)
+    x = linear(d_model, vocab_size, weights["lm_head.weight"], x) # batch_size sequence_length vocab_size
+    return x

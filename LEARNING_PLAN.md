@@ -19,8 +19,8 @@
 | 2 | Tokenizer / BPE | Done | `uv run pytest tests/test_tokenizer.py -q`; `uv run pytest tests/test_train_bpe.py -q` |
 | 3 | Data batching | Done | `uv run pytest tests/test_data.py -q` |
 | 4 | 基础 NN 组件 | Done | `uv run pytest tests/test_model.py -q`; `uv run pytest tests/test_nn_utils.py -q` |
-| 5 | Attention / RoPE | In progress | `uv run pytest tests/test_model.py::test_scaled_dot_product_attention -q`; `uv run pytest tests/test_model.py::test_rope -q` |
-| 6 | Transformer block / Transformer LM | Not started | `uv run pytest tests/test_model.py::test_transformer_block -q`; `uv run pytest tests/test_model.py::test_transformer_lm -q` |
+| 5 | Attention / RoPE | Done | `uv run pytest tests/test_model.py::test_scaled_dot_product_attention -q`; `uv run pytest tests/test_model.py::test_rope -q`; `uv run pytest tests/test_model.py::test_multihead_self_attention_with_rope -q` |
+| 6 | Transformer block / Transformer LM | Done | `uv run pytest tests/test_model.py::test_transformer_block -q`; `uv run pytest tests/test_model.py::test_transformer_lm -q`; `uv run pytest tests/test_model.py::test_transformer_lm_truncated_input -q` |
 | 7 | Optimizer / scheduler / checkpoint | Not started | `uv run pytest tests/test_optimizer.py -q`; `uv run pytest tests/test_serialization.py -q` |
 | 8 | 整体验证和提交 | Not started | `uv run pytest -q`; `./make_submission.sh` |
 
@@ -1646,7 +1646,7 @@ device: str
 
 ## Module 5: Attention / RoPE
 
-状态：In progress
+状态：Done
 
 目标：理解 Transformer 的核心计算：attention 和位置编码。
 
@@ -1682,17 +1682,26 @@ device: str
 - `uv run pytest tests/test_model.py::test_scaled_dot_product_attention -q` 已通过。
 - `uv run pytest tests/test_model.py::test_4d_scaled_dot_product_attention -q` 已通过。
 - `uv run pytest tests/test_model.py::test_multihead_self_attention -q` 已通过。
+- `uv run pytest tests/test_model.py::test_rope -q` 已通过。
+- `uv run pytest tests/test_model.py::test_multihead_self_attention_with_rope -q` 已通过。
 
 本模块检查点：
 
-- [ ] 能写出 Q/K/V/score/output 的 shape 流程。
-- [ ] 能解释 causal mask 的方向。
-- [ ] 能解释 RoPE 的输入输出不改变 shape。
-- [ ] 相关测试通过。
+- [x] 能写出 Q/K/V/score/output 的 shape 流程。
+- [x] 能解释 causal mask 的方向。
+- [x] 能解释 RoPE 的输入输出不改变 shape。
+- [x] 相关测试通过。
 
 ## Module 6: Transformer Block / Transformer LM
 
-状态：Not started
+状态：Done
+
+当前进度：
+
+- Attention/RoPE 的基础组件已通过，现在开始组合单个 pre-norm Transformer block。
+- `uv run pytest tests/test_model.py::test_transformer_block -q` 已通过。
+- `uv run pytest tests/test_model.py::test_transformer_lm -q` 已通过。
+- `uv run pytest tests/test_model.py::test_transformer_lm_truncated_input -q` 已通过。
 
 目标：把前面的组件组合成完整语言模型。
 
@@ -1713,9 +1722,9 @@ device: str
 
 本模块检查点：
 
-- [ ] 能画出一个 Transformer block 的数据流。
-- [ ] 能解释 full LM 的 forward pass。
-- [ ] 相关测试通过。
+- [x] 能画出一个 Transformer block 的数据流。
+- [x] 能解释 full LM 的 forward pass。
+- [x] 相关测试通过。
 
 ## Module 7: Optimizer / Scheduler / Checkpoint
 
