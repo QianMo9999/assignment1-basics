@@ -14,7 +14,7 @@ from cs336_basics.train_bpe import train_bpe
 from cs336_basics.get_batch import get_batch
 from cs336_basics.model import linear, embedding, silu, softmax, cross_entropy, rmsnorm
 from cs336_basics.model import swiglu, scaled_dot_product_attention, multihead_self_attention
-from cs336_basics.model import rope
+from cs336_basics.model import rope, multihead_self_attention_with_rope
 
 
 def run_linear(
@@ -190,6 +190,7 @@ def run_multihead_self_attention_with_rope(
         Float[Tensor, " ... sequence_length d_model"]: Tensor with the output of running your optimized, batched multi-headed attention
         implementation with the given QKV projection weights and input features.
     """
+    return multihead_self_attention_with_rope(d_model, num_heads, max_seq_len, theta, q_proj_weight, k_proj_weight, v_proj_weight, o_proj_weight, in_features, token_positions)
     raise NotImplementedError
 
 

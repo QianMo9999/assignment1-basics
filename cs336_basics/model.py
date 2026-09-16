@@ -83,6 +83,7 @@ def multihead_self_attention(
         o_proj_weight: Float[Tensor, " d_model d_model"],
         in_features: Float[Tensor, " ... sequence_length d_model"],
 ) -> Float[Tensor, " ... sequence_length d_model"]:
+    assert d_model % num_heads == 0, "d_model must be divisible by num_heads"
     Q = in_features @ q_proj_weight.T
     K = in_features @ k_proj_weight.T
     V = in_features @ v_proj_weight.T
@@ -112,7 +113,7 @@ def rope(
     in_query_or_key: Float[Tensor, " ... sequence_length d_k"],
     token_positions: Int[Tensor, " ... sequence_length"],
 ) -> Float[Tensor, " ... sequence_length d_k"]:
-    indices = torch.arange(0, d_k, 2)
+    indices = torch.arange(0, d_k, 2, device=in_query_or_key.device)
     freq = 1.0 / (theta ** (indices / d_k))
     pos = token_positions.unsqueeze(-1)
     angles = pos * freq
@@ -126,3 +127,34 @@ def rope(
     x_rotated[..., 0::2] = x_even_rotated
     x_rotated[..., 1::2] = x_odd_rotated
     return x_rotated
+
+def multihead_self_attention_with_rope(
+    d_model: int,
+    num_heads: int,
+    max_seq_len: int,
+    theta: float,
+    q_proj_weight: Float[Tensor, " d_model d_model"],
+    k_proj_weight: Float[Tensor, " d_model d_model"],
+    v_proj_weight: Float[Tensor, " d_model d_model"],
+    o_proj_weight: Float[Tensor, " d_model d_model"],
+    in_features: Float[Tensor, " ... sequence_length d_model"],
+    token_positions: Int[Tensor, " ... sequence_length"] | None = None,
+) -> Float[Tensor, " ... sequence_length d_model"]:
+    assert d_model % num_heads == 0, "d_model must be divisible by num_heads"
+    Q = in_features @ q_proj_weight.T # ... sequence_length d_model
+    K = in_features @ k_proj_weight.T
+    V = in_features @ v_proj_weight.T
+    d_head = d_model // num_heads
+    prefix_shape = Q.shape[:-1] # ... sequence_length
+    Q = Q.reshape(prefix_shape + (num_heads, d_head)).transpose(-2, -3) # ... num_heads sequence_length d_head
+    K = K.reshape(prefix_shape + (num_heads, d_head)).transpose(-2, -3)
+    V = V.reshape(prefix_shape + (num_heads, d_head)).transpose(-2, -3)
+    if token_positions is not None:
+        Q = rope(d_head, theta, max_seq_len, Q, token_positions)
+        K = rope(d_head, theta, max_seq_len, K, token_positions)
+    mask = torch.tril(torch.ones(Q.shape[-2], Q.shape[-2], dtype=torch.bool))
+    scores = (Q @ K.transpose(-2, -1) / math.sqrt(d_head)).masked_fill(mask == False, float("-inf")) # ... num_heads sequence_length sequence_length
+    attention_output =  torch.exp(scores) / torch.sum(torch.exp(scores), dim=-1, keepdim=True) @ V # ... num_heads sequence_length d_head
+    attention_output =  attention_output.transpose(-2, -3).reshape(prefix_shape + (d_model,))
+
+    return attention_output @ o_proj_weight.T
