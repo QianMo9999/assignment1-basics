@@ -15,7 +15,8 @@ from cs336_basics.get_batch import get_batch
 from cs336_basics.model import linear, embedding, silu, softmax, cross_entropy, rmsnorm
 from cs336_basics.model import swiglu, scaled_dot_product_attention, multihead_self_attention
 from cs336_basics.model import rope, multihead_self_attention_with_rope, transformer_block, transformer_lm
-
+from cs336_basics.model import gradient_clipping, lr_cosine_schedule
+from cs336_basics.AdamW import AdamW
 
 def run_linear(
     d_in: int,
@@ -483,6 +484,7 @@ def run_gradient_clipping(parameters: Iterable[torch.nn.Parameter], max_l2_norm:
 
     The gradients of the parameters (parameter.grad) should be modified in-place.
     """
+    return gradient_clipping(parameters, max_l2_norm)
     raise NotImplementedError
 
 
@@ -490,6 +492,7 @@ def get_adamw_cls() -> Any:
     """
     Returns a torch.optim.Optimizer that implements AdamW.
     """
+    return AdamW
     raise NotImplementedError
 
 
@@ -518,6 +521,7 @@ def run_get_lr_cosine_schedule(
     Returns:
         Learning rate at the given iteration under the specified schedule.
     """
+    return lr_cosine_schedule(it, max_learning_rate, min_learning_rate, warmup_iters, cosine_cycle_iters)
     raise NotImplementedError
 
 

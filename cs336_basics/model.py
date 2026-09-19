@@ -2,6 +2,7 @@ import torch
 from jaxtyping import Bool, Float, Int
 from torch import Tensor
 import math
+from collections.abc import Iterable
 
 def linear(
         d_in: int, 
@@ -199,3 +200,35 @@ def transformer_lm(
     x = rmsnorm(d_model, 1e-5, weights["ln_final.weight"], x)
     x = linear(d_model, vocab_size, weights["lm_head.weight"], x) # batch_size sequence_length vocab_size
     return x
+
+def gradient_clipping(parameters: Iterable[torch.nn.Parameter], max_l2_norm: float) -> None:
+    total_norm = 0
+    for param in parameters:
+        if param.grad is not None:
+            total_norm += torch.sum(param.grad.data ** 2)
+
+    total_norm = math.sqrt(total_norm)
+
+    if(total_norm > max_l2_norm):
+        scale = max_l2_norm / (total_norm + 1e-6)
+        for param in parameters:
+            if param.grad is not None:
+                param.grad.mul_(scale)
+        
+    return None
+
+def lr_cosine_schedule(
+    it: int,
+    max_learning_rate: float,
+    min_learning_rate: float,
+    warmup_iters: int,
+    cosine_cycle_iters: int,
+):
+    if it <= warmup_iters:
+        return max_learning_rate * it / warmup_iters
+    elif it <= cosine_cycle_iters:
+        progress = (it - warmup_iters) / (cosine_cycle_iters - warmup_iters)
+        factor = (1 + math.cos(math.pi * progress)) / 2
+        return min_learning_rate + factor * (max_learning_rate - min_learning_rate)
+    else:
+        return min_learning_rate
