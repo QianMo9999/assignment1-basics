@@ -9,7 +9,7 @@ def train_bpe(input_path: str | os.PathLike, vocab_size: int, special_tokens: li
         vocab[len(vocab)] = token.encode("utf-8")
     merges: list[tuple[bytes, bytes]] = []
     special_pretokens: list[str] = []
-    with open(input_path, "r", encoding="utf-8") as f:
+    with open(input_path, encoding="utf-8") as f:
         text = f.read()
         if special_tokens is not None and special_tokens != []:
             PAT = "|".join(re.escape(special_token) for special_token in special_tokens)
@@ -47,7 +47,8 @@ def train_bpe(input_path: str | os.PathLike, vocab_size: int, special_tokens: li
                         count[(tokens[i], tokens[i + 1])] = freq
             #max_count = max(count.values(), default=0)    
             max_pair = max(count, key=lambda pair: (count[pair], pair), default=None) 
-            if max_pair is None: break
+            if max_pair is None:
+                break
             merges.append(max_pair)
             vocab[len(vocab)] = max_pair[0] + max_pair[1]
             next_totaltokens: dict[tuple[bytes, ...], int] = {}

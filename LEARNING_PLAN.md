@@ -22,7 +22,7 @@
 | 5 | Attention / RoPE | Done | `uv run pytest tests/test_model.py::test_scaled_dot_product_attention -q`; `uv run pytest tests/test_model.py::test_rope -q`; `uv run pytest tests/test_model.py::test_multihead_self_attention_with_rope -q` |
 | 6 | Transformer block / Transformer LM | Done | `uv run pytest tests/test_model.py::test_transformer_block -q`; `uv run pytest tests/test_model.py::test_transformer_lm -q`; `uv run pytest tests/test_model.py::test_transformer_lm_truncated_input -q` |
 | 7 | Optimizer / scheduler / checkpoint | Done | `uv run pytest tests/test_nn_utils.py::test_gradient_clipping -q`; `uv run pytest tests/test_optimizer.py -q`; `uv run pytest tests/test_serialization.py -q` |
-| 8 | 整体验证和提交 | Not started | `uv run pytest -q`; `./make_submission.sh` |
+| 8 | 整体验证和提交 | In progress | `uv run pytest -q`; `./make_submission.sh` |
 
 ## One-Week Completion Plan
 
@@ -1768,13 +1768,13 @@ device: str
 
 ## Module 8: 整体验证和提交
 
-状态：Not started
+状态：In progress
 
 目标：确认所有模块协同工作，准备提交。
 
 最终检查：
 
-- [ ] `uv run pytest -q` 通过。
+- [x] `uv run pytest -q` 通过。当前结果：46 passed, 2 skipped。
 - [ ] 没有把大数据、缓存、模型权重等无关文件加入提交。
 - [ ] 理解 `make_submission.sh` 会排除哪些文件。
 - [ ] 能生成提交 zip。

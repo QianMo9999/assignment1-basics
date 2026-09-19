@@ -72,7 +72,7 @@ def scaled_dot_product_attention(
 ) -> Float[Tensor, " ... querys d_v"]:
     scores = Q @ K.transpose(-2, -1) / math.sqrt(Q.shape[-1])
     if mask is not None:
-        scores = scores.masked_fill(mask == False, float("-inf"))
+        scores = scores.masked_fill(~mask, float("-inf"))
     return softmax(scores, dim=-1) @ V
 
 def multihead_self_attention(
@@ -154,7 +154,7 @@ def multihead_self_attention_with_rope(
         Q = rope(d_head, theta, max_seq_len, Q, token_positions)
         K = rope(d_head, theta, max_seq_len, K, token_positions)
     mask = torch.tril(torch.ones(Q.shape[-2], Q.shape[-2], dtype=torch.bool))
-    scores = (Q @ K.transpose(-2, -1) / math.sqrt(d_head)).masked_fill(mask == False, float("-inf")) # ... num_heads sequence_length sequence_length
+    scores = (Q @ K.transpose(-2, -1) / math.sqrt(d_head)).masked_fill(~mask, float("-inf")) # ... num_heads sequence_length sequence_length
     attention_output =  torch.exp(scores) / torch.sum(torch.exp(scores), dim=-1, keepdim=True) @ V # ... num_heads sequence_length d_head
     attention_output =  attention_output.transpose(-2, -3).reshape(prefix_shape + (d_model,))
 

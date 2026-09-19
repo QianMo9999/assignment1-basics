@@ -84,5 +84,4 @@ class BPETokenizer:
     def encode_iterable(self, iterable):
         for chunk in iterable:
             ids = self.encode(chunk)
-            for id in ids:
-                yield id
+            yield from ids
