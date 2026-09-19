@@ -21,7 +21,7 @@
 | 4 | 基础 NN 组件 | Done | `uv run pytest tests/test_model.py -q`; `uv run pytest tests/test_nn_utils.py -q` |
 | 5 | Attention / RoPE | Done | `uv run pytest tests/test_model.py::test_scaled_dot_product_attention -q`; `uv run pytest tests/test_model.py::test_rope -q`; `uv run pytest tests/test_model.py::test_multihead_self_attention_with_rope -q` |
 | 6 | Transformer block / Transformer LM | Done | `uv run pytest tests/test_model.py::test_transformer_block -q`; `uv run pytest tests/test_model.py::test_transformer_lm -q`; `uv run pytest tests/test_model.py::test_transformer_lm_truncated_input -q` |
-| 7 | Optimizer / scheduler / checkpoint | In progress | `uv run pytest tests/test_nn_utils.py::test_gradient_clipping -q`; `uv run pytest tests/test_optimizer.py -q`; `uv run pytest tests/test_serialization.py -q` |
+| 7 | Optimizer / scheduler / checkpoint | Done | `uv run pytest tests/test_nn_utils.py::test_gradient_clipping -q`; `uv run pytest tests/test_optimizer.py -q`; `uv run pytest tests/test_serialization.py -q` |
 | 8 | 整体验证和提交 | Not started | `uv run pytest -q`; `./make_submission.sh` |
 
 ## One-Week Completion Plan
@@ -1728,7 +1728,7 @@ device: str
 
 ## Module 7: Optimizer / Scheduler / Checkpoint
 
-状态：In progress
+状态：Done
 
 目标：理解训练流程中的优化器、学习率变化、梯度裁剪和保存恢复。
 
@@ -1757,13 +1757,14 @@ device: str
 - `uv run pytest tests/test_nn_utils.py::test_gradient_clipping -q` 已通过。
 - `uv run pytest tests/test_optimizer.py::test_get_lr_cosine_schedule -q` 已通过。
 - `uv run pytest tests/test_optimizer.py::test_adamw -q` 已通过。
+- `uv run pytest tests/test_serialization.py::test_checkpointing -q` 已通过。
 
 本模块检查点：
 
 - [x] 能解释 AdamW 的状态变量。
 - [x] 能解释学习率 schedule 的三个阶段。
-- [ ] 能说明 checkpoint 恢复后为什么 optimizer 状态也重要。
-- [ ] 相关测试通过。
+- [x] 能说明 checkpoint 恢复后为什么 optimizer 状态也重要。
+- [x] 相关测试通过。
 
 ## Module 8: 整体验证和提交
 

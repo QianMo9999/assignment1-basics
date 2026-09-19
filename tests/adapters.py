@@ -17,6 +17,7 @@ from cs336_basics.model import swiglu, scaled_dot_product_attention, multihead_s
 from cs336_basics.model import rope, multihead_self_attention_with_rope, transformer_block, transformer_lm
 from cs336_basics.model import gradient_clipping, lr_cosine_schedule
 from cs336_basics.AdamW import AdamW
+from cs336_basics.checkpoint import save_checkpoint, load_checkpoint
 
 def run_linear(
     d_in: int,
@@ -541,6 +542,7 @@ def run_save_checkpoint(
             we've completed.
         out (str | os.PathLike | BinaryIO | IO[bytes]): Path or file-like object to serialize the model, optimizer, and iteration to.
     """
+    return save_checkpoint(model, optimizer, iteration, out)
     raise NotImplementedError
 
 
@@ -562,6 +564,7 @@ def run_load_checkpoint(
     Returns:
         int: the previously-serialized number of iterations.
     """
+    return load_checkpoint(src, model, optimizer)
     raise NotImplementedError
 
 
